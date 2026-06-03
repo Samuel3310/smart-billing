@@ -3,11 +3,6 @@
 @import "tailwindcss/utilities.css";
 
 @import "nativewind/theme";
-@import "tailwindcss/theme.css" layer(theme);
-@import "tailwindcss/preflight.css" layer(base);
-@import "tailwindcss/utilities.css";
-
-@import "nativewind/theme";
 
 @theme {
   --color-background: #fff9e3;
@@ -21,7 +16,6 @@
   --color-success: #16a34a;
   --color-destructive: #dc2626;
   --color-subscription: #8fd1bd;
-
   --spacing-0: 0px;
   --spacing-1: 4px;
   --spacing-2: 8px;
