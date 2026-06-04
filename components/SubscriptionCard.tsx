@@ -23,6 +23,7 @@ const SubscriptionCard = ({
   paymentMethod,
   onPress,
 }: SubscriptionCardProps) => {
+  const fallback = "Not Provided";
   return (
     <Pressable
       onPress={onPress}
@@ -85,7 +86,7 @@ const SubscriptionCard = ({
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
-                  {startDate ? formatSubscriptionDateTime(startDate) : ""}
+                  {startDate ? formatSubscriptionDateTime(startDate) : fallback}
                 </Text>
               </View>
             </View>
@@ -98,7 +99,9 @@ const SubscriptionCard = ({
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
-                  {renewalDate ? formatSubscriptionDateTime(renewalDate) : ""}
+                  {renewalDate
+                    ? formatSubscriptionDateTime(renewalDate)
+                    : fallback}
                 </Text>
               </View>
             </View>
@@ -111,7 +114,7 @@ const SubscriptionCard = ({
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
-                  {status ? formatStatusLabel(status) : ""}
+                  {status ? formatStatusLabel(status) : fallback}
                 </Text>
               </View>
             </View>
