@@ -1,4 +1,4 @@
-import { isClerkAPIResponseError, useAuth, useSignIn } from "@clerk/expo";
+import { isClerkAPIResponseError, useAuth, useSignUp } from "@clerk/expo";
 import { clsx } from "clsx";
 import { Link, Redirect, useRouter, type Href } from "expo-router";
 import { styled } from "nativewind";
@@ -31,31 +31,34 @@ const getClerkError = (error: unknown) => {
   return "Something went wrong. Please try again.";
 };
 
-export default function SignIn() {
-  const { isLoaded, isSignedIn } = useAuth();
-  const { signIn, fetchStatus } = useSignIn();
+export default function SignUp() {
+  const { signUp, fetchStatus } = useSignUp();
+  const { isSignedIn } = useAuth();
   const router = useRouter();
   const [emailAddress, setEmailAddress] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [code, setCode] = React.useState("");
   const [localError, setLocalError] = React.useState("");
-  const [isLocallySubmitting, setIsLocallySubmitting] = React.useState(false);
-  const isSubmitting = fetchStatus === "fetching" || isLocallySubmitting;
-  const isMfa = signIn?.status === "needs_client_trust";
-  const normalizedEmail = emailAddress.trim();
+  const isSubmitting = fetchStatus === "fetching";
+  const isVerifying =
+    signUp?.status === "missing_requirements" &&
+    signUp.unverifiedFields.includes("email_address") &&
+    signUp.missingFields.length === 0;
 
   const emailError =
-    normalizedEmail.length > 0 && !emailPattern.test(normalizedEmail)
+    emailAddress.length > 0 && !emailPattern.test(emailAddress)
       ? "Enter a valid email address."
       : "";
   const passwordError =
     password.length > 0 && password.length < 8
-      ? "Password must be at least 8 characters."
+      ? "Use at least 8 characters."
       : "";
+  const canSubmit =
+    emailPattern.test(emailAddress) && password.length >= 8 && !isSubmitting;
   const canVerify = code.trim().length >= 4 && !isSubmitting;
 
-  const navigateHome = async () => {
-    await signIn.finalize({
+  const finishSignUp = async () => {
+    await signUp.finalize({
       navigate: ({ session, decorateUrl }) => {
         if (session?.currentTask) {
           setLocalError("Finish the required account task to continue.");
@@ -75,7 +78,7 @@ export default function SignIn() {
   const handleSubmit = async () => {
     setLocalError("");
 
-    if (!emailPattern.test(normalizedEmail)) {
+    if (!emailPattern.test(emailAddress)) {
       setLocalError("Enter a valid email address.");
       return;
     }
@@ -85,11 +88,9 @@ export default function SignIn() {
       return;
     }
 
-    setIsLocallySubmitting(true);
-
     try {
-      const { error } = await signIn.password({
-        emailAddress: normalizedEmail,
+      const { error } = await signUp.password({
+        emailAddress: emailAddress.trim(),
         password,
       });
 
@@ -98,31 +99,9 @@ export default function SignIn() {
         return;
       }
 
-      if (signIn.status === "complete") {
-        await navigateHome();
-      } else if (signIn.status === "needs_client_trust") {
-        const emailCodeFactor = signIn.supportedSecondFactors.find(
-          (factor) => factor.strategy === "email_code",
-        );
-
-        if (emailCodeFactor) {
-          await signIn.mfa.sendEmailCode();
-        } else {
-          setLocalError(
-            "This account requires a verification method that is not enabled here.",
-          );
-        }
-      } else if (signIn.status === "needs_second_factor") {
-        setLocalError("Complete your second factor to continue.");
-      } else {
-        setLocalError(
-          "We need a little more information before signing you in.",
-        );
-      }
+      await signUp.verifications.sendEmailCode();
     } catch (error) {
       setLocalError(getClerkError(error));
-    } finally {
-      setIsLocallySubmitting(false);
     }
   };
 
@@ -130,23 +109,25 @@ export default function SignIn() {
     setLocalError("");
 
     try {
-      await signIn.mfa.verifyEmailCode({ code: code.trim() });
+      await signUp.verifications.verifyEmailCode({
+        code: code.trim(),
+      });
 
-      if (signIn.status === "complete") {
-        await navigateHome();
+      if (signUp.status === "complete") {
+        await finishSignUp();
       } else {
-        setLocalError("That code did not complete sign in. Please try again.");
+        setLocalError("That code did not complete sign up. Please try again.");
       }
     } catch (error) {
       setLocalError(getClerkError(error));
     }
   };
 
-  const renderError = localError;
-
-  if (isLoaded && isSignedIn) {
+  if (isSignedIn || signUp?.status === "complete") {
     return <Redirect href="/(tabs)" />;
   }
+
+  const renderError = localError;
 
   return (
     <SafeAreaView className="flex-1 p-5 bg-background">
@@ -171,18 +152,18 @@ export default function SignIn() {
             </View>
 
             <Text className="auth-title">
-              {isMfa ? "Check your inbox" : "Welcome back"}
+              {isVerifying ? "Verify your email" : "Create your account"}
             </Text>
             <Text className="auth-subtitle">
-              {isMfa
-                ? "Enter the verification code we sent to your email."
-                : "Sign in to continue managing your subscriptions."}
+              {isVerifying
+                ? "Enter the code we sent so your subscription data stays protected."
+                : "Start tracking renewals, spend, and subscription changes in one place."}
             </Text>
           </View>
 
           <View className="auth-card">
             <View className="auth-form">
-              {isMfa ? (
+              {isVerifying ? (
                 <>
                   <View className="auth-field">
                     <Text className="auth-label">Verification code</Text>
@@ -199,6 +180,9 @@ export default function SignIn() {
                       autoCapitalize="none"
                       autoCorrect={false}
                     />
+                    <Text className="auth-helper">
+                      Sent to {emailAddress.trim()}
+                    </Text>
                   </View>
 
                   {renderError ? (
@@ -216,27 +200,17 @@ export default function SignIn() {
                     {isSubmitting ? (
                       <ActivityIndicator color="#081126" />
                     ) : (
-                      <Text className="auth-button-text">Verify</Text>
+                      <Text className="auth-button-text">Verify account</Text>
                     )}
                   </Pressable>
 
                   <Pressable
                     className="auth-secondary-button"
                     disabled={isSubmitting}
-                    onPress={() => signIn.mfa.sendEmailCode()}
+                    onPress={() => signUp.verifications.sendEmailCode()}
                   >
                     <Text className="auth-secondary-button-text">
                       Send a new code
-                    </Text>
-                  </Pressable>
-
-                  <Pressable
-                    className="auth-secondary-button"
-                    disabled={isSubmitting}
-                    onPress={() => signIn.reset()}
-                  >
-                    <Text className="auth-secondary-button-text">
-                      Start over
                     </Text>
                   </Pressable>
                 </>
@@ -273,15 +247,19 @@ export default function SignIn() {
                       )}
                       value={password}
                       onChangeText={setPassword}
-                      placeholder="Enter your password"
+                      placeholder="Create a password"
                       placeholderTextColor="rgba(0, 0, 0, 0.45)"
-                      textContentType="password"
-                      autoComplete="current-password"
+                      textContentType="newPassword"
+                      autoComplete="new-password"
                       secureTextEntry
                     />
                     {passwordError ? (
                       <Text className="auth-error">{passwordError}</Text>
-                    ) : null}
+                    ) : (
+                      <Text className="auth-helper">
+                        At least 8 characters.
+                      </Text>
+                    )}
                   </View>
 
                   {renderError ? (
@@ -291,22 +269,26 @@ export default function SignIn() {
                   <Pressable
                     className={clsx(
                       "auth-button",
-                      isSubmitting && "auth-button-disabled",
+                      !canSubmit && "auth-button-disabled",
                     )}
-                    disabled={isSubmitting}
+                    disabled={!canSubmit}
                     onPress={handleSubmit}
                   >
                     {isSubmitting ? (
                       <ActivityIndicator color="#081126" />
                     ) : (
-                      <Text className="auth-button-text">Sign in</Text>
+                      <Text className="auth-button-text">Create account</Text>
                     )}
                   </Pressable>
 
+                  <View nativeID="clerk-captcha" />
+
                   <View className="auth-link-row">
-                    <Text className="auth-link-copy">New to Recurly?</Text>
-                    <Link href="/sign-up" replace>
-                      <Text className="auth-link">Create an account</Text>
+                    <Text className="auth-link-copy">
+                      Already have an account?
+                    </Text>
+                    <Link href="/sign-in" replace>
+                      <Text className="auth-link">Sign in</Text>
                     </Link>
                   </View>
                 </>
