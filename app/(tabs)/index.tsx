@@ -12,7 +12,8 @@ import ImageBase from "@/constants/image";
 import { formatCurrency } from "@/lib/utils";
 import dayjs from "dayjs";
 import { styled } from "nativewind";
-import { useState } from "react";
+import { usePostHog } from "posthog-react-native";
+import { useEffect, useState } from "react";
 import { FlatList, Image, Text, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 
@@ -22,6 +23,12 @@ export default function Index() {
   const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<
     string | null
   >(null);
+
+  const posthog = usePostHog();
+
+  useEffect(() => {
+    posthog.capture("event_name");
+  }, [posthog]);
   return (
     <SafeAreaView className="flex-1 p-5 bg-background">
       <FlatList

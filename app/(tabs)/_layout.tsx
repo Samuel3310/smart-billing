@@ -5,6 +5,7 @@ import { useAuth } from "@clerk/expo";
 import { clsx } from "clsx";
 
 import { Redirect, Tabs } from "expo-router";
+
 import React from "react";
 import { Image, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
