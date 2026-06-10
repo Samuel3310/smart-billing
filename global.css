@@ -257,6 +257,150 @@
     @apply py-10 text-center text-base font-sans-semibold text-muted-foreground;
   }
 
+  .insights-content {
+    @apply gap-4 pb-30;
+  }
+
+  .insights-nav {
+    @apply mb-3 flex-row items-center justify-between;
+  }
+
+  .insights-circle-button {
+    @apply size-11 items-center justify-center rounded-full border border-border bg-background;
+  }
+
+  .insights-nav-icon {
+    @apply size-5;
+  }
+
+  .insights-title {
+    @apply text-base font-sans-extrabold text-primary;
+  }
+
+  .insights-section-head {
+    @apply flex-row items-center justify-between;
+  }
+
+  .insights-section-title {
+    @apply text-lg font-sans-bold text-primary;
+  }
+
+  .insights-view-all {
+    @apply rounded-full border border-black/20 px-4 py-2;
+  }
+
+  .insights-view-all-text {
+    @apply text-sm font-sans-semibold text-primary;
+  }
+
+  .insights-chart-card {
+    @apply relative h-60 overflow-hidden rounded-2xl border border-border bg-card p-4;
+  }
+
+  .insights-chart-grid {
+    @apply absolute inset-x-4 bottom-10 top-5 justify-between;
+  }
+
+  .insights-grid-row {
+    @apply flex-row items-center gap-3;
+  }
+
+  .insights-grid-label {
+    @apply w-6 text-[10px] font-sans-semibold text-muted-foreground;
+  }
+
+  .insights-grid-line {
+    @apply h-px flex-1 border-t border-dashed border-black/10;
+  }
+
+  .insights-bars {
+    @apply absolute bottom-4 left-12 right-4 top-8 flex-row items-end justify-between;
+  }
+
+  .insights-bar-column {
+    @apply h-full items-center justify-end gap-2;
+  }
+
+  .insights-bar-track {
+    @apply relative h-40 w-5 justify-end;
+  }
+
+  .insights-bar {
+    @apply w-3 self-center rounded-full bg-primary;
+  }
+
+  .insights-bar-active {
+    @apply w-4 self-center rounded-full bg-accent;
+  }
+
+  .insights-bar-badge {
+    @apply absolute -top-4 -left-3 rounded-md bg-background px-2 py-1;
+  }
+
+  .insights-bar-badge-text {
+    @apply text-[10px] font-sans-bold text-accent;
+  }
+
+  .insights-bar-label {
+    @apply text-xs font-sans-semibold text-primary;
+  }
+
+  .insights-expense-card {
+    @apply flex-row items-center justify-between rounded-2xl border border-border bg-card p-4;
+  }
+
+  .insights-expense-title {
+    @apply text-base font-sans-bold text-primary;
+  }
+
+  .insights-expense-date {
+    @apply mt-1 text-xs font-sans-semibold text-muted-foreground;
+  }
+
+  .insights-expense-amount {
+    @apply text-base font-sans-extrabold text-primary;
+  }
+
+  .insights-expense-trend {
+    @apply mt-1 text-xs font-sans-semibold text-muted-foreground;
+  }
+
+  .insights-history-list {
+    @apply gap-3;
+  }
+
+  .insights-history-card {
+    @apply min-h-22 flex-row items-center justify-between gap-4 rounded-2xl p-4;
+  }
+
+  .insights-history-main {
+    @apply min-w-0 flex-1 flex-row items-center gap-3;
+  }
+
+  .insights-history-icon-wrap {
+    @apply size-12 items-center justify-center rounded-xl bg-background/70;
+  }
+
+  .insights-history-icon {
+    @apply size-8 rounded-lg;
+  }
+
+  .insights-history-name {
+    @apply text-base font-sans-bold text-primary;
+  }
+
+  .insights-history-date {
+    @apply mt-1 text-xs font-sans-semibold text-primary/70;
+  }
+
+  .insights-history-price {
+    @apply text-base font-sans-extrabold text-primary;
+  }
+
+  .insights-history-billing {
+    @apply mt-1 text-xs font-sans-semibold text-primary/70;
+  }
+
   .auth-safe-area {
     @apply flex-1 bg-background;
   }
