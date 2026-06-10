@@ -2,44 +2,15 @@ import "@/global.css";
 import { ClerkProvider } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
 import { useFonts } from "expo-font";
-import {
-  SplashScreen,
-  Stack,
-  useGlobalSearchParams,
-  usePathname,
-} from "expo-router";
-import { PostHogProvider, usePostHog } from "posthog-react-native";
-import { useEffect, useMemo } from "react";
-
+import { SplashScreen, Stack } from "expo-router";
+import { PostHogProvider } from "posthog-react-native";
+import { useEffect } from "react";
 SplashScreen.preventAutoHideAsync();
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "";
-const postHogApiKey = process.env.EXPO_PUBLIC_POSTHOG_API_KEY ?? "";
-const postHogHost =
-  process.env.EXPO_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com";
 
 if (!publishableKey) {
   throw new Error("Add EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY to your .env file");
-}
-
-if (!postHogApiKey) {
-  throw new Error("Add EXPO_PUBLIC_POSTHOG_API_KEY to your .env file");
-}
-
-function PostHogScreenTracker() {
-  const posthog = usePostHog();
-  const pathname = usePathname();
-  const params = useGlobalSearchParams();
-  const serializedParams = useMemo(() => JSON.stringify(params), [params]);
-
-  useEffect(() => {
-    posthog.screen(pathname, {
-      pathname,
-      params: JSON.parse(serializedParams),
-    });
-  }, [pathname, posthog, serializedParams]);
-
-  return null;
 }
 
 export default function RootLayout() {
@@ -62,19 +33,20 @@ export default function RootLayout() {
     return null;
   }
   return (
-    <PostHogProvider
-      apiKey={postHogApiKey}
-      options={{ host: postHogHost }}
-      autocapture={{ captureScreens: false }}
-    >
-      <PostHogScreenTracker />
-      <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+      <PostHogProvider
+        apiKey="phc_mRgKNbwjkPRXkXJKRFyUoN8EUQiV5SEMGDGdJfsPJkLQ"
+        options={{
+          // usually 'https://us.i.posthog.com' or 'https://eu.i.posthog.com'
+          host: "https://us.i.posthog.com",
+        }}
+      >
         <Stack initialRouteName="(auth)" screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="subscriptions/[id]" />
         </Stack>
-      </ClerkProvider>
-    </PostHogProvider>
+      </PostHogProvider>
+    </ClerkProvider>
   );
 }

@@ -1,4 +1,5 @@
 import { isClerkAPIResponseError, useAuth, useSignUp } from "@clerk/expo";
+import AuthLoading from "@/components/AuthLoading";
 import { clsx } from "clsx";
 import { Link, Redirect, useRouter, type Href } from "expo-router";
 import { styled } from "nativewind";
@@ -33,7 +34,7 @@ const getClerkError = (error: unknown) => {
 
 export default function SignUp() {
   const { signUp, fetchStatus } = useSignUp();
-  const { isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn } = useAuth();
   const router = useRouter();
   const [emailAddress, setEmailAddress] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -128,6 +129,10 @@ export default function SignUp() {
   }
 
   const renderError = localError;
+
+  if (!isLoaded) {
+    return <AuthLoading />;
+  }
 
   return (
     <SafeAreaView className="flex-1 p-5 bg-background">

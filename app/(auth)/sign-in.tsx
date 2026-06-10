@@ -1,4 +1,5 @@
 import { isClerkAPIResponseError, useAuth, useSignIn } from "@clerk/expo";
+import AuthLoading from "@/components/AuthLoading";
 import { clsx } from "clsx";
 import { Link, Redirect, useRouter, type Href } from "expo-router";
 import { styled } from "nativewind";
@@ -143,6 +144,10 @@ export default function SignIn() {
   };
 
   const renderError = localError;
+
+  if (!isLoaded) {
+    return <AuthLoading />;
+  }
 
   if (isLoaded && isSignedIn) {
     return <Redirect href="/(tabs)" />;

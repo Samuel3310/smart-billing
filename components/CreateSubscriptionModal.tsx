@@ -2,6 +2,7 @@ import { icons } from "@/constants/icons";
 import { theme } from "@/constants/theme";
 import { clsx } from "clsx";
 import dayjs from "dayjs";
+import { usePostHog } from "posthog-react-native";
 import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -75,6 +76,7 @@ const CreateSubscriptionModal = ({
   const parsedPrice = Number(price);
   const canSubmit = name.trim().length > 0 && parsedPrice > 0;
   const bodyMaxHeight = height - theme.spacing[18] - insets.top - insets.bottom;
+  const posthog = usePostHog();
 
   const resetForm = () => {
     setName("");
@@ -119,6 +121,12 @@ const CreateSubscriptionModal = ({
       color: categoryColors[category],
     });
 
+    posthog.capture("subscription_created", {
+      subscription_name: normalizedName,
+      subscription_price: normalizedPrice,
+      subscription_frequency: frequency,
+      subscription_category: category,
+    });
     resetForm();
     onClose();
   };
